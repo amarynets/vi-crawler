@@ -1,5 +1,9 @@
 import scrapy
+from slugify import slugify
 
 
 class BaseSpider(scrapy.Spider):
-    pass
+
+    @staticmethod
+    def slugify(text):
+        return slugify(text)

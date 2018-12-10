@@ -14,7 +14,7 @@ class RegionItem(scrapy.Item):
     url = scrapy.Field()
 
 
-class University(scrapy.Item):
+class UniversityItem(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
@@ -24,7 +24,7 @@ class University(scrapy.Item):
     region_id = scrapy.Field()
 
 
-class Specialty(scrapy.Item):
+class SpecialtyItem(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
