@@ -18,7 +18,6 @@ class UniversityItem(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
-    region = scrapy.Field()
     type = scrapy.Field()
     description = scrapy.Field()
     region_id = scrapy.Field()
