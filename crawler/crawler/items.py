@@ -8,7 +8,26 @@
 import scrapy
 
 
-class CrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class RegionItem(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    url = scrapy.Field()
+
+
+class University(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    url = scrapy.Field()
+    region = scrapy.Field()
+    type = scrapy.Field()
+    description = scrapy.Field()
+    region_id = scrapy.Field()
+
+
+class Specialty(scrapy.Item):
+    id = scrapy.Field()
+    name = scrapy.Field()
+    url = scrapy.Field()
+    student_list = scrapy.Field()
+    university_id = scrapy.Field()
+
