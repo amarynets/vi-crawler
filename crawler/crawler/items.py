@@ -27,6 +27,8 @@ class SpecialtyItem(scrapy.Item):
     id = scrapy.Field()
     name = scrapy.Field()
     url = scrapy.Field()
+    degree = scrapy.Field()
+    time = scrapy.Field()
     student_list = scrapy.Field()
     university_id = scrapy.Field()
 

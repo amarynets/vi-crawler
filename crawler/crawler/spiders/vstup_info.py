@@ -37,7 +37,7 @@ class VstupInfoSpider(BaseSpider):
         type_of_universities = universities.css('div.accordion-heading a::text').extract()
         list_of_universities = universities.css('div.accordion-body')
         for type_, univ in zip(type_of_universities, list_of_universities):
-            type_ = re.sub('(\(\d+\))', '', type_).strip()
+            type_ = self.clean_number(type_)
             for i in univ.css('a'):
                 name = i.css('::text').extract_first().strip()
                 university_item = UniversityItem(
@@ -47,7 +47,42 @@ class VstupInfoSpider(BaseSpider):
                     type=type_,
                     region_id=region['id']
                 )
-                yield university_item
+                yield scrapy.Request(
+                    url=university_item['url'],
+                    callback=self.parse_specialty,
+                    meta={'university': university_item}
+                )
 
+    def parse_specialty(self, response):
+        university = response.meta['university']
+        university['description'] = '\n'.join(response.xpath('.//table[@id="about"]//text()').extract())
+        yield university
 
+        full_time = response.xpath('.//div[contains(@id, "den-")]')
+        part_time = response.xpath('.//div[contains(@id, "zao-")]')
+
+        for form, type_of_studding in zip(('Денна', 'Заочна'), [full_time, part_time]):
+            if not type_of_studding:
+                continue
+            degrees = type_of_studding.xpath('.//ul[@id="myTab"]//a')
+            for degree in degrees:
+                degree_name = degree.root.text.strip()
+                degree_ancor = degree.root.attrib('href')
+
+                for specialty in response.xpath('.//div[@id=$ancor]//a[@class="button button-mini"]/@href', ancor=degree_ancor[1:]).extract():
+                    specialty_item = SpecialtyItem(
+                        id=specialty.split('/')[-1].split('.html')[0],
+                        url=response.urljoin(specialty),
+                        degree=degree_name,
+                        time=form,
+                        university_id=university['id']
+                    )
+                    yield scrapy.Request(
+                        url=specialty_item['url'],
+                        callback=self.parse_student_list,
+                        meta={'specialty': specialty_item}
+                    )
+
+    def parse_student_list(self, response):
+        specialty = response.meta['specialty']
 
