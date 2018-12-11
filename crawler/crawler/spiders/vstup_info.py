@@ -66,8 +66,8 @@ class VstupInfoSpider(BaseSpider):
                 continue
             degrees = type_of_studding.xpath('.//ul[@id="myTab"]//a')
             for degree in degrees:
-                degree_name = degree.root.text.strip()
-                degree_ancor = degree.root.attrib('href')
+                degree_name = self.clean_number(degree.root.text.strip())
+                degree_ancor = degree.root.attrib['href']
 
                 for specialty in response.xpath('.//div[@id=$ancor]//a[@class="button button-mini"]/@href', ancor=degree_ancor[1:]).extract():
                     specialty_item = SpecialtyItem(
@@ -85,4 +85,10 @@ class VstupInfoSpider(BaseSpider):
 
     def parse_student_list(self, response):
         specialty = response.meta['specialty']
+        extra_info = response.xpath('.//div[@class="title-page"]//span[@class="search"]//text()').extract()
+        extra_info = [i for i in extra_info if i.strip()]
+        extra_info = dict([extra_info[i:i+2] for i in range(0, len(extra_info), 2)])
+        specialty['name'] = extra_info['Спеціальність:']
+        specialty['id'] = self.slugify(extra_info['Спеціальність:'])
+        a = 1
 
