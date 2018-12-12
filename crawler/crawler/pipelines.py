@@ -2,7 +2,7 @@
 import json
 
 
-class CrawlerPipeline(object):
+class CrawlerPipeline:
 
     def open_spider(self, spider):
         self.file_names = ['RegionItem', 'UniversityItem', 'SpecialtyItem']
@@ -24,4 +24,12 @@ class CrawlerPipeline(object):
         else:
             self.files[item.__class__.__name__].write(',\n')
             json.dump(dict(item), self.files[item.__class__.__name__], indent=4, ensure_ascii=False)
+        return item
+
+
+class VoidSenderPipeline:
+    def process_item(self, item, spider):
+        spider.logger.info('SEND ITEM INTO VOID')
+
+        # Important to return item for chain next pipeline
         return item
