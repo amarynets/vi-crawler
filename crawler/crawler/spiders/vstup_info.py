@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 import scrapy
 
 from crawler.spiders.base import BaseSpider
@@ -86,9 +85,33 @@ class VstupInfoSpider(BaseSpider):
     def parse_student_list(self, response):
         specialty = response.meta['specialty']
         extra_info = response.xpath('.//div[@class="title-page"]//span[@class="search"]//text()').extract()
+        if not extra_info:
+            id_ = response.url.split('/')[-1].split('.')[0]
+            specialty['name'] = id_
+            specialty['id'] = id_
+            specialty['student_list'] = self.create_student_list(response)
+            yield specialty
+            return
         extra_info = [i for i in extra_info if i.strip()]
         extra_info = dict([extra_info[i:i+2] for i in range(0, len(extra_info), 2)])
         specialty['name'] = extra_info['Спеціальність:']
         specialty['id'] = self.slugify(extra_info['Спеціальність:'])
-        a = 1
+        specialty['student_list'] = self.create_student_list(response)
+        yield specialty
 
+    def create_student_list(self, response):
+        head = response.css('table.tablesaw-sortable thead th::text').extract()
+        body = response.css('table.tablesaw-sortable tbody tr')
+        students = []
+        for row in body:
+            item = {
+                k: '\n'.join(i.strip() for i in v.xpath('.//text()').extract() if i.strip()).strip()
+                for k, v in zip(head, row.xpath('.//td'))
+            }
+            if 'Σ' in item:
+                item['id'] = self.slugify(f'{item["ПІБ"]}_{item["Σ"]}')
+            else:
+                item['id'] = self.slugify(item["ПІБ"])
+            students.append(item)
+
+        return students
